@@ -189,8 +189,10 @@ del reader
 dis_station.sort()
 other_station.sort()
 
-origin_station = other_station
-dest_station = other_station
+origin_station = dis_station
+dest_station = dis_station
+origin_station.sort()
+dest_station.sort()
 
 ## read OD matrix
 with codecs.open(os.path.join(path, 'OD', 'Chi_Bikeshare_OD_2016.csv'),'r',encoding="utf-8-sig") as f:
@@ -236,29 +238,31 @@ for origin in origin_station:
 ##############
 #  calibration process
 ## initial value
-beta_0 = -4
-sigma_0 = 1
-stepsize = 0.1 # (0,1)
+beta_0 = -1.4
+sigma_0 = -0.4
+stepsize = 1 # (0,1)
 iteration = 1
-threshold = 0.00000001
+threshold = 0.1
 
 ## keep the value change for every iteration
 fg_value_store = []
 beta_value_store = [beta_0]
 sigma_value_store = [sigma_0]
-while iteration < 10000:
+while iteration < 500:
     print '############'
     print 'This is the ' + str(iteration) + 'th iteration'
     Z_i = Z_i_value(Dt_j_dest, A_ij_origin_dest, sigma_0, D_ij_origin_dest, beta_0, origin_station, dest_station)
     T_ij = T_ij_value(Z_i, Ot_i_origin, Dt_j_dest, A_ij_origin_dest, sigma_0, D_ij_origin_dest, beta_0, origin_station, dest_station)
-    jacobi_matrix = Jacobi_Matrix(T_ij, D_ij_origin_dest, A_ij_origin_dest, origin_station, dest_station)
+    jacobi_matrix = Jacobi_Matrix(T_ij, Tt_ij_origin_dest, D_ij_origin_dest, A_ij_origin_dest, origin_station, dest_station)
     jacobi_matrix = matrix(jacobi_matrix)
     var_0 = matrix([[beta_0],[sigma_0]])
     fg_value = FG_value(T_ij, Tt_ij_origin_dest, D_ij_origin_dest, A_ij_origin_dest, origin_station, dest_station)
     print fg_value
     fg_value_store.append(fg_value)
-    LA_fg = LA.norm(fg_value)
-    if LA_fg > threshold:
+    #LA_fg = LA.norm(fg_value)
+    Ave_diff = OD_Diff(T_ij, Tt_ij_origin_dest, origin_station, dest_station)
+    print Ave_diff
+    if Ave_diff > threshold:
         direction = - jacobi_matrix.I * matrix(fg_value).T
         var_1 = var_0 + stepsize * direction
         beta_0 = float(var_1[0][0])
