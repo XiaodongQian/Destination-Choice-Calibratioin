@@ -70,13 +70,25 @@ def Jacobi_Matrix(T_ij,Tt_ij,D_ij,A_ij,origin_station, dest_station):
         for dest in range(len(dest_station)):
             if origin_station[origin] != dest_station[dest]:
                 den_1 += T_ij[origin][dest] * (np.log10(D_ij[origin][dest]))**2
-
+    '''
+    den_2 = 0
+    for origin in range(len(origin_station)):
+        for dest in range(len(dest_station)):
+            if origin_station[origin] != dest_station[dest]:
+                den_2 += T_ij[origin][dest] * np.log10(D_ij[origin][dest])
+    '''
     den_3 = 0
     for origin in range(len(origin_station)):
         for dest in range(len(dest_station)):
             if origin_station[origin] != dest_station[dest]:
                 den_3 += T_ij[origin][dest] * np.log10(D_ij[origin][dest]) * np.log10(A_ij[origin][dest])
-
+    '''
+    den_4 = 0
+    for origin in range(len(origin_station)):
+        for dest in range(len(dest_station)):
+            if origin_station[origin] != dest_station[dest]:
+                den_4 += T_ij[origin][dest] * np.log10(A_ij[origin][dest])
+    '''
     den_5 = 0
     for origin in range(len(origin_station)):
         for dest in range(len(dest_station)):
